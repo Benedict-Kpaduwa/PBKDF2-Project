@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@keyframes moveBackground {
+  0% { background-position: 0 0; }
+  100% { background-position: -100% 0; }
+}
+
+.moving-background {
+  background-image: url('/space.jpg');
+  background-size: cover;
+  background-repeat: repeat-x;
+  animation: moveBackground 20s linear infinite;
+}
