@@ -9,7 +9,7 @@ const VictoryScreen: React.FC<VictoryScreenProps> = ({ onRestart }) => {
   const [showConfetti, setShowConfetti] = useState(true);
 
   useEffect(() => {
-    // Suggest sound: new Audio('/victory.mp3').play();
+    new Audio("/victory.mp3").play();
     const timer = setTimeout(() => setShowConfetti(false), 5000);
     return () => clearTimeout(timer);
   }, []);
