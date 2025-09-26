@@ -33,7 +33,7 @@ const Scenario: React.FC<ScenarioProps> = ({ data, onAnswer }) => {
       onAnswer(option.correct);
       setAnswered(false);
       if (!option.correct) setSelected(null);
-    }, 1200);
+    }, 3000);
   };
 
   return (

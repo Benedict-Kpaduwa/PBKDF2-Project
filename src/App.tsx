@@ -51,7 +51,7 @@ function App() {
       id: 2,
       title: "Quest 2: The Defender",
       description:
-        "Oh no! Aliens cracked your first hash. Reinforce the second door—add something to make rainbow tables ineffective.",
+        "Oh no! Aliens cracked your first hash. Reinforce the second door—add something to make rainbow table attacks ineffective.",
       options: [
         {
           id: "reuse",
@@ -145,6 +145,7 @@ function App() {
   const total = scenes.length;
   const [lastCorrect, setLastCorrect] = useState<boolean | null>(null);
   const [rocketTrigger, setRocketTrigger] = useState<number>(0);
+  const [slideIndex, setSlideIndex] = useState(0);
   const finished = step >= total;
 
   function handleAnswer(correct: boolean) {
@@ -175,12 +176,21 @@ function App() {
     setLastCorrect(null);
     setRocketTrigger(0);
     setShowPlayground(false);
+    setSlideIndex(0);
     if (!isAudioPlaying) {
       audio
         .play()
         .then(() => setIsAudioPlaying(true))
         .catch((err) => console.log("Audio play failed:", err));
     }
+  }
+
+  function nextSlide() {
+    setSlideIndex((prev) => prev + 1);
+  }
+
+  function prevSlide() {
+    setSlideIndex((prev) => Math.max(prev - 1, 0));
   }
 
   useEffect(() => {
@@ -213,78 +223,122 @@ function App() {
   return (
     <div
       ref={backgroundRef}
-      className="min-h-screen moving-background text-white p-6 overflow-hidden"
+      className="min-h-screen moving-background text-white p-6 overflow-hidden flex flex-col"
     >
-      <div className="max-w-5xl mx-auto relative">
-        <header className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold">PBKDF2: Mission Escape</h1>
-          <div className="text-sm text-gray-200">
-            {finished
-              ? "Mission Complete!"
-              : step === -1
-              ? "Prepare for Launch"
-              : `Quest ${step + 1} / ${total}`}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent"></div>
+      <div className="max-w-5xl mx-auto relative z-10 flex-1 flex flex-col">
+        <div className="mb-6 p-4 bg-black/50 rounded-lg backdrop-blur-md">
+          <h2 className="text-2xl font-bold mb-4 text-white">
+            Mission Briefing
+          </h2>
+          <div className="relative">
+            <iframe
+              src="https://onedrive.live.com/embed?cid=...&wdAr=1.33"
+              width="100%"
+              height="400"
+              frameBorder="0"
+              allowFullScreen
+              className="rounded-lg shadow-lg"
+            ></iframe>
+            <div className="mt-4 flex justify-center gap-4">
+              <button
+                className="px-4 py-2 bg-gray-600 rounded shadow hover:bg-indigo-500"
+                onClick={prevSlide}
+              >
+                Previous
+              </button>
+              <button
+                className="px-4 py-2 bg-green-600 rounded shadow hover:bg-green-500"
+                onClick={nextSlide}
+              >
+                Next
+              </button>
+            </div>
+            <div className="text-center text-gray-200 mt-2">
+              Slide {slideIndex + 1} of {5}
+            </div>
           </div>
-        </header>
+        </div>
 
-        {step === -1 ? (
-          <div className="text-center mt-20">
-            <h2 className="text-4xl font-bold mb-6">Welcome, Astronaut!</h2>
-            <p className="text-lg mb-6">
-              Aliens are approaching! Secure the station with PBKDF2 knowledge.
-            </p>
-            <button
-              className="px-6 py-3 bg-green-600 rounded-lg shadow hover:bg-green-500 text-xl cursor-pointer"
-              onClick={startMission}
-            >
-              Start Mission
-            </button>
-          </div>
-        ) : (
-          <>
-            {!finished && <Progress step={step} total={total} />}
-            <main className="mt-6">
-              {!finished ? (
-                <>
-                  <Scenario
-                    key={scenes[step].id}
-                    data={scenes[step]}
-                    onAnswer={handleAnswer}
-                  />
-                  <RocketAnimation trigger={rocketTrigger} />
-                  <div className="mt-6 flex gap-2 items-center">
-                    <button
-                      className="px-4 py-2 bg-gray-600 rounded shadow hover:bg-indigo-500"
-                      onClick={() => setStep((s) => Math.max(s - 1, 0))}
-                      disabled={step === 0}
-                    >
-                      Prev Quest
-                    </button>
-                    <button
-                      className="px-4 py-2 bg-green-600 rounded shadow hover:bg-green-500"
-                      onClick={() => setStep((s) => Math.min(s + 1, total - 1))}
-                      disabled={step === total - 1}
-                    >
-                      Next Quest
-                    </button>
-                    <div className="ml-auto text-sm text-gray-200">
-                      {lastCorrect === null
-                        ? "Choose an option!"
-                        : lastCorrect
-                        ? "Correct - Aliens repelled!"
-                        : "Incorrect - Try again!"}
+        <div className="flex-1">
+          <header className="flex items-center justify-between mb-6">
+            <h1 className="text-3xl font-bold">PBKDF2: Mission Escape</h1>
+            <div className="text-sm text-gray-200">
+              {finished
+                ? "Mission Complete!"
+                : step === -1
+                ? "Prepare for Launch"
+                : `Quest ${step + 1} / ${total}`}
+            </div>
+          </header>
+
+          {step === -1 ? (
+            <div className="text-center mt-20">
+              <h2 className="text-4xl font-bold mb-6">Welcome, Astronaut!</h2>
+              <p className="text-lg mb-6">
+                Aliens are approaching! Secure the station with PBKDF2
+                knowledge.
+              </p>
+              <button
+                className="px-6 py-3 bg-green-600 rounded-lg shadow hover:bg-green-500 text-xl cursor-pointer"
+                onClick={startMission}
+              >
+                Start Mission
+              </button>
+            </div>
+          ) : (
+            <>
+              {!finished && <Progress step={step} total={total} />}
+              <main className="mt-6 relative">
+                {!finished ? (
+                  <>
+                    <Scenario
+                      key={scenes[step].id}
+                      data={scenes[step]}
+                      onAnswer={handleAnswer}
+                    />
+                    <div className="absolute bottom-0 left-0 w-full">
+                      <RocketAnimation trigger={rocketTrigger} />
                     </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <VictoryScreen onRestart={restart} />
-                  {showPlayground && <Playground />}
-                </>
-              )}
-            </main>
-          </>
-        )}
+                    <div className="mt-6 flex gap-2 items-center">
+                      <button
+                        className="px-4 py-2 bg-gray-600 rounded shadow hover:bg-indigo-500"
+                        onClick={() => setStep((s) => Math.max(s - 1, 0))}
+                        disabled={step === 0}
+                      >
+                        Prev Quest
+                      </button>
+                      <button
+                        className="px-4 py-2 bg-green-600 rounded shadow hover:bg-green-500"
+                        onClick={() =>
+                          setStep((s) => Math.min(s + 1, total - 1))
+                        }
+                        disabled={step === total - 1}
+                      >
+                        Next Quest
+                      </button>
+                      <div className="ml-auto text-sm text-gray-200">
+                        {lastCorrect === null
+                          ? "Choose an option!"
+                          : lastCorrect
+                          ? "Correct - Aliens repelled!"
+                          : "Incorrect - Try again!"}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <VictoryScreen onRestart={restart} />
+                    <div className="absolute bottom-0 left-0 w-full">
+                      <RocketAnimation trigger={rocketTrigger} />
+                    </div>
+                    {showPlayground && <Playground />}
+                  </>
+                )}
+              </main>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
