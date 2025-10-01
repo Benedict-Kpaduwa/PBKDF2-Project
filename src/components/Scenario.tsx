@@ -12,7 +12,8 @@ type ScenarioData = {
   title: string;
   description: string;
   options: Option[];
-  learningObjective: string;
+  learningObjectiveCorrect: string;
+  learningObjectiveIncorrect: string;
 };
 
 type ScenarioProps = {
@@ -84,8 +85,9 @@ const Scenario: React.FC<ScenarioProps> = ({ data, onAnswer }) => {
             <div className="text-sm text-gray-200">
               {selected &&
                 (data.options.find((o) => o.id === selected)?.correct
-                  ? "Correct! " + data.learningObjective
-                  : "Not quite—aliens are closer! " + data.learningObjective)}
+                  ? "Correct! " + data.learningObjectiveCorrect
+                  : "Not quite—aliens are closer! " +
+                    data.learningObjectiveIncorrect)}
             </div>
           </motion.div>
         )}
