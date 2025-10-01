@@ -726,13 +726,22 @@ function App() {
     }
   }
 
+  const playSound = async (src: string) => {
+    try {
+      const audioInstance = new Audio(src);
+      audioInstance.volume = src === "/background.wav" ? 0.3 : 0.5;
+      audioInstance.preload = "auto";
+      await audioInstance.play();
+    } catch (err) {
+      console.warn("Audio play blocked:", err);
+      setTimeout(() => playSound(src), 100);
+    }
+  };
+
   function startMission() {
     setStep(0);
     if (!isAudioPlaying) {
-      audio
-        .play()
-        .then(() => setIsAudioPlaying(true))
-        .catch((err) => console.log("Audio play failed:", err));
+      playSound("/background.wav").then(() => setIsAudioPlaying(true));
     }
   }
 
@@ -742,10 +751,7 @@ function App() {
     setRocketTrigger(0);
     setShowPlayground(false);
     if (!isAudioPlaying) {
-      audio
-        .play()
-        .then(() => setIsAudioPlaying(true))
-        .catch((err) => console.log("Audio play failed:", err));
+      playSound("/background.wav").then(() => setIsAudioPlaying(true));
     }
   }
 
@@ -775,6 +781,18 @@ function App() {
       audio.currentTime = 0;
     };
   }, [audio]);
+
+  useEffect(() => {
+    const preloadAudio = (src: string) => {
+      const audioInstance = new Audio(src);
+      audioInstance.preload = "auto";
+      audioInstance.load();
+    };
+
+    preloadAudio("/background.wav");
+    preloadAudio("/confirm.wav");
+    preloadAudio("/reject.wav");
+  }, []);
 
   return (
     <div
